@@ -3,25 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Маршрут поездки: Италия → Швейцария • Февраль 2026</title>
+    <title>
+      Маршрут поездки: Италия → Швейцария • Февраль 2026 (OSRM, без ключей)
+    </title>
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
       crossorigin=""
     />
     <style>
       :root {
-        --bg: #0f172a; /* slate-900 */
-        --panel: #111827; /* gray-900 */
-        --panel-2: #0b1220; /* near */
-        --text: #e5e7eb; /* gray-200 */
-        --muted: #9ca3af; /* gray-400 */
-        --accent: #38bdf8; /* sky-400 */
-        --accent-2: #f59e0b; /* amber-500 */
-        --ok: #22c55e; /* green-500 */
+        --bg: #0f172a;
+        --panel: #111827;
+        --panel2: #0b1220;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --accent: #38bdf8;
+        --ok: #22c55e;
         --warn: #f59e0b;
-        --danger: #ef4444;
       }
       html,
       body {
@@ -39,7 +38,7 @@
         height: 100%;
       }
       .sidebar {
-        background: linear-gradient(180deg, var(--panel), var(--panel-2));
+        background: linear-gradient(180deg, var(--panel), var(--panel2));
         padding: 14px;
         overflow: auto;
         border-right: 1px solid #1f2937;
@@ -47,37 +46,26 @@
       .map {
         height: 100%;
       }
-      .card {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 14px;
-        padding: 12px;
-        margin-bottom: 10px;
-      }
-      .title {
-        font-size: 18px;
-        font-weight: 700;
-        letter-spacing: 0.2px;
-      }
-      .subtitle {
-        font-size: 12px;
-        color: var(--muted);
-      }
       .row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 10px;
       }
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        padding: 4px 8px;
-        border-radius: 999px;
+      .title {
+        font-size: 18px;
+        font-weight: 800;
+      }
+      .subtitle {
         font-size: 12px;
         color: var(--muted);
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 12px;
+        margin-bottom: 10px;
       }
       .btn {
         background: transparent;
@@ -90,39 +78,36 @@
       .btn:hover {
         border-color: var(--accent);
       }
-      .btn-primary {
-        background: var(--accent);
-        color: #001018;
-        border: none;
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+      .kpi {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 8px 0 10px;
+      }
+      .kpi .num {
+        font-weight: 800;
+        font-size: 18px;
       }
       .list {
         display: grid;
         gap: 6px;
       }
-      .day {
-        display: grid;
-        grid-template-columns: 86px 1fr;
-        gap: 10px;
-        align-items: start;
-        padding: 8px 10px;
-        border-radius: 12px;
+      .line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 6px 8px;
         border: 1px dashed rgba(255, 255, 255, 0.08);
-      }
-      .day .date {
-        font-weight: 700;
-        color: var(--accent);
-        font-variant-numeric: tabular-nums;
-      }
-      .day .city {
-        font-weight: 600;
-      }
-      .mono {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-          "Liberation Mono", "Courier New", monospace;
-      }
-      .pop {
-        font-size: 13px;
-        line-height: 1.2;
+        border-radius: 10px;
       }
       .edge-label {
         background: rgba(17, 24, 39, 0.85);
@@ -132,13 +117,11 @@
         border: 1px solid rgba(255, 255, 255, 0.12);
         font-size: 12px;
         white-space: nowrap;
-      }
-      .editor {
-        margin-top: 8px;
+        width: 100px !important;
       }
       .editor textarea {
         width: 100%;
-        min-height: 180px;
+        min-height: 200px;
         resize: vertical;
         background: #0a0f1a;
         color: #d1d5db;
@@ -146,43 +129,8 @@
         border-radius: 10px;
         padding: 10px;
       }
-      .grid2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-      }
       a {
         color: #93c5fd;
-      }
-      .kpi {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-        margin: 8px 0 10px;
-      }
-      .kpi .card {
-        text-align: center;
-      }
-      .kpi .num {
-        font-size: 18px;
-        font-weight: 800;
-      }
-      .participant {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 6px 8px;
-        border-radius: 8px;
-        border: 1px dashed rgba(255, 255, 255, 0.08);
-        font-size: 14px;
-      }
-      .participant .name {
-        font-weight: 600;
-      }
-      .participant .joined {
-        font-size: 12px;
-        color: var(--accent);
-        font-weight: 600;
       }
       @media (max-width: 1000px) {
         .app {
@@ -204,101 +152,71 @@
           <div>
             <div class="title">Италия → Швейцария • Февраль 2026</div>
             <div class="subtitle">
-              Маршрут, даты, расходы. Всё редактируется через JSON ниже.
+              Карта на Leaflet + маршрутизация через OSRM (без API-ключей).
+              Маркеры перетаскиваются, маршрут перестраивается с debounce.
             </div>
           </div>
-          <button id="fitBtn" class="btn" title="Показать весь маршрут">
-            Fit
-          </button>
+          <button id="fitBtn" class="btn">Fit</button>
+        </div>
+
+        <div class="grid2">
+          <label class="card" style="display: block">
+            <div class="subtitle">Профиль маршрута</div>
+            <select
+              id="profile"
+              class="mono"
+              style="
+                width: 100%;
+                padding: 8px;
+                border-radius: 8px;
+                background: #0a0f1a;
+                color: #d1d5db;
+                border: 1px solid #1f2937;
+              "
+            >
+              <option value="driving" selected>driving (авто)</option>
+              <option value="walking">walking (пешком)</option>
+              <option value="cycling">cycling (велосипед)</option>
+            </select>
+          </label>
+          <div class="card">
+            <div class="subtitle">Опции</div>
+            <label style="display: flex; gap: 8px; align-items: center"
+              ><input id="snapToRoads" type="checkbox" checked />
+              <span class="subtitle">привязывать к дорогам</span></label
+            >
+          </div>
         </div>
 
         <div class="kpi">
           <div class="card">
-            <div class="subtitle">Дней</div>
-            <div id="kpiDays" class="num">—</div>
+            <div class="subtitle">Всего, км</div>
+            <div id="kpiKm" class="num">—</div>
           </div>
           <div class="card">
-            <div class="subtitle">Точек</div>
+            <div class="subtitle">Всего, время</div>
+            <div id="kpiDur" class="num">—</div>
+          </div>
+          <div class="card">
+            <div class="subtitle">Узлов</div>
             <div id="kpiStops" class="num">—</div>
           </div>
-          <div class="card">
-            <div class="subtitle">Сумма, ₽</div>
-            <div id="kpiTotal" class="num mono">—</div>
-          </div>
         </div>
 
         <div class="card">
           <div class="row" style="margin-bottom: 6px">
-            <div class="title" style="font-size: 16px">Участники поездки</div>
-            <div class="badge">
-              <span id="participantCount">—</span><span>человек</span>
-            </div>
+            <div class="title" style="font-size: 16px">Сегменты</div>
           </div>
-          <div id="participants" class="list" style="margin-bottom: 10px"></div>
-        </div>
-
-        <div class="card">
-          <div class="row" style="margin-bottom: 6px">
-            <div class="title" style="font-size: 16px">Календарь по дням</div>
-            <div class="badge">
-              <span>локаль</span><span class="mono">ru-RU</span>
-            </div>
-          </div>
-          <div id="days" class="list"></div>
-        </div>
-
-        <div class="card">
-          <div class="row" style="margin-bottom: 6px">
-            <div class="title" style="font-size: 16px">Google Maps API</div>
-            <button id="updateTimesBtn" class="btn" disabled>
-              Обновить время
-            </button>
-          </div>
-          <div class="subtitle" style="margin-bottom: 6px">
-            Введите API ключ Google Maps для автоматического расчета времени в
-            пути между точками.
-          </div>
-          <div class="grid2" style="margin-bottom: 8px">
-            <input
-              id="googleApiKey"
-              type="password"
-              placeholder="Google Maps API ключ"
-              style="
-                background: #0a0f1a;
-                color: #d1d5db;
-                border: 1px solid #1f2937;
-                border-radius: 8px;
-                padding: 8px;
-                font-size: 12px;
-              "
-            />
-            <select
-              id="travelMode"
-              style="
-                background: #0a0f1a;
-                color: #d1d5db;
-                border: 1px solid #1f2937;
-                border-radius: 8px;
-                padding: 8px;
-                font-size: 12px;
-              "
-            >
-              <option value="DRIVING">На автомобиле</option>
-              <option value="TRANSIT">Общественный транспорт</option>
-              <option value="WALKING">Пешком</option>
-            </select>
-          </div>
-          <div id="apiStatus" class="subtitle" style="display: none"></div>
+          <div id="legs" class="list"></div>
         </div>
 
         <div class="card">
           <div class="row" style="margin-bottom: 6px">
             <div class="title" style="font-size: 16px">JSON конфиг</div>
-            <button id="applyBtn" class="btn-primary btn">Перестроить</button>
+            <button id="applyBtn" class="btn">Перестроить</button>
           </div>
           <div class="subtitle" style="margin-bottom: 6px">
-            Редактируйте и нажмите «Перестроить». Формат задуман для простых
-            правок дат/стоимостей/ссылок и добавления точек.
+            Редактируйте точки/поля. Порядок точек определяет порядок маршрута.
           </div>
           <div class="editor">
             <textarea id="jsonEditor" spellcheck="false"></textarea>
@@ -306,53 +224,18 @@
         </div>
 
         <div class="subtitle">
-          Сделано как единый HTML. Библиотека карты: Leaflet. Метки сегментов
-          показывают время в пути.
+          Примечание: публичный OSRM сервер ограничен по запросам; для
+          продакшена — свой инстанс/альтернатива.
         </div>
       </aside>
 
       <main id="map" class="map"></main>
     </div>
 
-    <!-- ====== Исходные данные (редактируйте) ====== -->
+    <!-- ====== ДАННЫЕ ====== -->
     <script type="application/json" id="trip-data">
       {
         "currency": "RUB",
-        "people": [
-          { "name": "Олег", "joinFrom": "neapol" },
-          { "name": "Павел", "joinFrom": "neapol" },
-          { "name": "Дима", "joinFrom": "neapol" },
-          { "name": "Влад", "joinFrom": "neapol" },
-          { "name": "Наташа", "joinFrom": "neapol" },
-          { "name": "Катя", "joinFrom": "neapol" },
-          { "name": "Никита", "joinFrom": "cyurix" }
-        ],
-        "segments": [
-          {
-            "from": "neapol",
-            "to": "rim",
-            "travelHours": 1.25,
-            "note": "Поезд/авто"
-          },
-          { "from": "rim", "to": "bolonya", "travelHours": 2.5 },
-          { "from": "bolonya", "to": "veneciya", "travelHours": 1.5 },
-          { "from": "veneciya", "to": "milan", "travelHours": 2.75 },
-          {
-            "from": "milan",
-            "to": "vaduc",
-            "travelHours": 5,
-            "note": "Указано в плане"
-          },
-          { "from": "vaduc", "to": "cyurix", "travelHours": 1.75 },
-          { "from": "cyurix", "to": "bern", "travelHours": 1.25 },
-          { "from": "bern", "to": "zermatt", "travelHours": 2.75 },
-          {
-            "from": "zermatt",
-            "to": "cyurix2",
-            "travelHours": 3.8,
-            "note": "10:15–14:03"
-          }
-        ],
         "stops": [
           {
             "id": "neapol",
@@ -363,8 +246,7 @@
             "arrive": "2026-02-09",
             "depart": "2026-02-11",
             "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=3079825&checkIn=2026-02-09&checkOut=2026-02-11",
-            "costRUB": 28238,
-            "participants": ["Олег", "Павел", "Дима", "Влад", "Наташа", "Катя"]
+            "costRUB": 28238
           },
           {
             "id": "rim",
@@ -375,8 +257,7 @@
             "arrive": "2026-02-11",
             "depart": "2026-02-14",
             "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2945770&checkIn=2026-02-11&checkOut=2026-02-14",
-            "costRUB": 68729,
-            "participants": ["Олег", "Павел", "Дима", "Влад", "Наташа", "Катя"]
+            "costRUB": 68729
           },
           {
             "id": "bolonya",
@@ -387,8 +268,7 @@
             "arrive": "2026-02-14",
             "depart": "2026-02-15",
             "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2199691&checkIn=2026-02-14&checkOut=2026-02-15",
-            "costRUB": 22542,
-            "participants": ["Олег", "Павел", "Дима", "Влад", "Наташа", "Катя"]
+            "costRUB": 22542
           },
           {
             "id": "veneciya",
@@ -399,8 +279,7 @@
             "arrive": "2026-02-15",
             "depart": "2026-02-16",
             "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=13660415&checkIn=2026-02-15&checkOut=2026-02-16",
-            "costRUB": 16210.26,
-            "participants": ["Олег", "Павел", "Дима", "Влад", "Наташа", "Катя"]
+            "costRUB": 16210.26
           },
           {
             "id": "milan",
@@ -411,8 +290,7 @@
             "arrive": "2026-02-16",
             "depart": "2026-02-18",
             "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2196521&checkIn=2026-02-16&checkOut=2026-02-18",
-            "costRUB": 100000,
-            "participants": ["Олег", "Павел", "Дима", "Влад", "Наташа", "Катя"]
+            "costRUB": 100000
           },
           {
             "id": "vaduc",
@@ -424,8 +302,7 @@
             "depart": "2026-02-19",
             "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=104439383&checkIn=2026-02-18&checkOut=2026-02-19",
             "costRUB": 42023,
-            "note": "5 часов из Милана",
-            "participants": ["Олег", "Павел", "Дима", "Влад", "Наташа", "Катя"]
+            "note": "5 часов из Милана"
           },
           {
             "id": "cyurix",
@@ -436,16 +313,7 @@
             "arrive": "2026-02-19",
             "depart": "2026-02-20",
             "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2198062&checkIn=2026-02-19&checkOut=2026-02-20",
-            "costRUB": 52453.28,
-            "participants": [
-              "Олег",
-              "Павел",
-              "Дима",
-              "Влад",
-              "Наташа",
-              "Катя",
-              "Никита"
-            ]
+            "costRUB": 52453.28
           },
           {
             "id": "bern",
@@ -456,16 +324,7 @@
             "arrive": "2026-02-20",
             "depart": "2026-02-21",
             "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=749230&checkIn=2026-02-20&checkOut=2026-02-21",
-            "costRUB": 52598.94,
-            "participants": [
-              "Олег",
-              "Павел",
-              "Дима",
-              "Влад",
-              "Наташа",
-              "Катя",
-              "Никита"
-            ]
+            "costRUB": 52598.94
           },
           {
             "id": "zermatt",
@@ -477,16 +336,7 @@
             "depart": "2026-02-27",
             "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2151049&checkIn=2026-02-21&checkOut=2026-02-27",
             "costRUB": 435119,
-            "note": "Номера 4н x 2ч",
-            "participants": [
-              "Олег",
-              "Павел",
-              "Дима",
-              "Влад",
-              "Наташа",
-              "Катя",
-              "Никита"
-            ]
+            "note": "Номера 4н x 2ч"
           },
           {
             "id": "cyurix2",
@@ -496,512 +346,218 @@
             "lng": 8.5417,
             "arrive": "2026-02-27",
             "depart": "2026-02-28",
-            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2198062&checkIn=2026-02-27&checkOut=2026-02-28",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2198062&checkIn=2026-02-27&CheckOut=2026-02-28",
             "costRUB": 42975.92,
-            "note": "Поезд 10:15–14:03",
-            "participants": [
-              "Олег",
-              "Павел",
-              "Дима",
-              "Влад",
-              "Наташа",
-              "Катя",
-              "Никита"
-            ]
+            "note": "Поезд 10:15–14:03"
           }
-        ],
-        "flight": {
-          "date": "2026-02-28",
-          "from": "ZRH",
-          "time": "11:40",
-          "checkin": "10:55",
-          "costRUB": 137740
-        },
-        "totalsNote": "Оценка общей суммы из плана: 2 518 229,40 ₽ (можно поменять/удалить)"
+        ]
       }
     </script>
 
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
     <script>
-      // ======= Утилиты =======
-      const fmtMoney = (n, currency = "RUB") =>
-        new Intl.NumberFormat("ru-RU", { style: "currency", currency }).format(
-          n
-        );
-      const fmtDate = (d) => new Date(d + "T12:00:00"); // фикс таймзоны
-      const fmtDay = (d) =>
-        new Intl.DateTimeFormat("ru-RU", { weekday: "long" }).format(d);
-      const fmtDMY = (d) =>
-        new Intl.DateTimeFormat("ru-RU", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }).format(d);
+      // ===== Утилиты =====
+      const $ = (sel) => document.querySelector(sel);
+      const fmtMoney = (n, c = "RUB") =>
+        new Intl.NumberFormat("ru-RU", {
+          style: "currency",
+          currency: c,
+        }).format(n);
+      const fmtDur = (sec) => {
+        if (!isFinite(sec)) return "—";
+        const totalMinutes = sec / 60;
+        const h = Math.floor(totalMinutes / 60);
+        const mm = totalMinutes % 60;
+        const mmFormatted = mm < 10 ? mm.toFixed(1) : Math.round(mm);
+        return (h ? `${h} ч ` : "") + `${mmFormatted} м`;
+      };
+      const fmtKm = (m) => (m / 1000).toFixed(1);
+      const debounce = (fn, ms = 800) => {
+        let t;
+        return (...a) => {
+          clearTimeout(t);
+          t = setTimeout(() => fn(...a), ms);
+        };
+      };
 
-      function daysBetween(a, b) {
-        const ms = fmtDate(b) - fmtDate(a);
-        return Math.round(ms / 86400000);
-      }
-
-      function expandDays(stops) {
-        const days = [];
-        for (const s of stops) {
-          const a = fmtDate(s.arrive),
-            d = fmtDate(s.depart);
-          for (let cur = new Date(a); cur < d; cur.setDate(cur.getDate() + 1)) {
-            days.push({
-              date: new Date(cur),
-              stopId: s.id,
-              city: s.city,
-              country: s.country,
-            });
-          }
-        }
-        return days;
-      }
-
-      function getParticipantsAtStop(stop) {
-        return stop.participants || [];
-      }
-
-      function getCostPerPerson(stop) {
-        const participants = getParticipantsAtStop(stop);
-        if (!participants.length || !stop.costRUB) return 0;
-        return stop.costRUB / participants.length;
-      }
-
-      function calculatePersonalCosts(data) {
-        const costs = {};
-
-        // Инициализируем нулевыми затратами всех участников
-        if (data.people) {
-          data.people.forEach((person) => {
-            costs[person.name] = 0;
-          });
-        }
-
-        // Проходим по всем точкам и считаем затраты каждого участника
-        data.stops.forEach((stop) => {
-          const participants = getParticipantsAtStop(stop);
-          const costPerPerson = getCostPerPerson(stop);
-
-          participants.forEach((participantName) => {
-            if (costs[participantName] !== undefined) {
-              costs[participantName] += costPerPerson;
-            }
-          });
-        });
-
-        // Добавляем стоимость перелета (делим на всех участников последней точки)
-        if (data.flight && data.flight.costRUB && data.stops.length > 0) {
-          const lastStop = data.stops[data.stops.length - 1];
-          const lastStopParticipants = getParticipantsAtStop(lastStop);
-          const flightCostPerPerson =
-            data.flight.costRUB / lastStopParticipants.length;
-
-          lastStopParticipants.forEach((participantName) => {
-            if (costs[participantName] !== undefined) {
-              costs[participantName] += flightCostPerPerson;
-            }
-          });
-        }
-
-        return costs;
-      }
-
-      // ======= Google Maps API =======
-      async function updateTravelTimes() {
-        const apiKey = document.getElementById("googleApiKey").value.trim();
-        const travelMode = document.getElementById("travelMode").value;
-        const statusEl = document.getElementById("apiStatus");
-        const buttonEl = document.getElementById("updateTimesBtn");
-
-        if (!apiKey) {
-          showApiStatus("Введите API ключ Google Maps", "error");
-          return;
-        }
-
-        try {
-          buttonEl.disabled = true;
-          buttonEl.textContent = "Загрузка...";
-          showApiStatus("Получение данных о времени в пути...", "loading");
-
-          const data = JSON.parse(document.getElementById("jsonEditor").value);
-          const updatedSegments = await Promise.all(
-            data.segments.map(async (segment) => {
-              const fromStop = data.stops.find((s) => s.id === segment.from);
-              const toStop = data.stops.find((s) => s.id === segment.to);
-
-              if (!fromStop || !toStop) {
-                return segment;
-              }
-
-              const travelTime = await getGoogleTravelTime(
-                fromStop.lat,
-                fromStop.lng,
-                toStop.lat,
-                toStop.lng,
-                apiKey,
-                travelMode
-              );
-
-              return {
-                ...segment,
-                travelHours: travelTime,
-                note: segment.note
-                  ? `${segment.note} (обновлено Google Maps)`
-                  : "обновлено Google Maps",
-              };
-            })
-          );
-
-          data.segments = updatedSegments;
-          document.getElementById("jsonEditor").value = JSON.stringify(
-            data,
-            null,
-            2
-          );
-          render(data);
-
-          showApiStatus(
-            `Время в пути обновлено для ${updatedSegments.length} сегментов`,
-            "success"
-          );
-        } catch (error) {
-          console.error("Ошибка при обновлении времени:", error);
-          showApiStatus(`Ошибка: ${error.message}`, "error");
-        } finally {
-          buttonEl.disabled = false;
-          buttonEl.textContent = "Обновить время";
-        }
-      }
-
-      async function getGoogleTravelTime(
-        fromLat,
-        fromLng,
-        toLat,
-        toLng,
-        apiKey,
-        mode
-      ) {
-        return new Promise((resolve, reject) => {
-          const origins = `${fromLat},${fromLng}`;
-          const destinations = `${toLat},${toLng}`;
-
-          // Используем JSONP для обхода CORS
-          const callbackName = `googleCallback_${Date.now()}_${Math.random()
-            .toString(36)
-            .substr(2, 9)}`;
-
-          const url =
-            `https://maps.googleapis.com/maps/api/distancematrix/json?` +
-            `origins=${origins}&destinations=${destinations}&mode=${mode.toLowerCase()}` +
-            `&units=metric&language=ru&key=${apiKey}&callback=${callbackName}`;
-
-          // Создаем глобальную функцию обратного вызова
-          window[callbackName] = (data) => {
-            // Очищаем
-            delete window[callbackName];
-            document.head.removeChild(script);
-
-            try {
-              if (data.status !== "OK") {
-                reject(
-                  new Error(
-                    `Google API ошибка: ${data.error_message || data.status}`
-                  )
-                );
-                return;
-              }
-
-              const element = data.rows[0]?.elements[0];
-              if (!element || element.status !== "OK") {
-                reject(
-                  new Error(
-                    `Не удалось получить маршрут: ${
-                      element?.status || "неизвестная ошибка"
-                    }`
-                  )
-                );
-                return;
-              }
-
-              // Конвертируем секунды в часы
-              const hours =
-                Math.round((element.duration.value / 3600) * 100) / 100;
-              resolve(hours);
-            } catch (error) {
-              reject(error);
-            }
-          };
-
-          // Создаем script тег для JSONP
-          const script = document.createElement("script");
-          script.src = url;
-          script.onerror = () => {
-            delete window[callbackName];
-            document.head.removeChild(script);
-            reject(new Error("Ошибка загрузки данных от Google Maps API"));
-          };
-
-          // Таймаут для запроса
-          setTimeout(() => {
-            if (window[callbackName]) {
-              delete window[callbackName];
-              if (script.parentNode) {
-                document.head.removeChild(script);
-              }
-              reject(new Error("Таймаут запроса к Google Maps API"));
-            }
-          }, 10000);
-
-          document.head.appendChild(script);
-        });
-      }
-
-      function showApiStatus(message, type) {
-        const statusEl = document.getElementById("apiStatus");
-        statusEl.style.display = "block";
-        statusEl.textContent = message;
-        statusEl.style.color =
-          type === "error"
-            ? "var(--danger)"
-            : type === "success"
-            ? "var(--ok)"
-            : type === "loading"
-            ? "var(--accent)"
-            : "var(--muted)";
-
-        if (type === "success") {
-          setTimeout(() => {
-            statusEl.style.display = "none";
-          }, 3000);
-        }
-      }
-
-      // ======= Рендер карты/данных =======
+      // ===== Глобальные =====
       let map,
-        layers = { markers: [], lines: [], labels: [] };
+        routeLine = null,
+        stopMarkers = [],
+        edgeLabels = [];
+      let data = JSON.parse(
+        document.getElementById("trip-data").textContent.trim()
+      );
 
       function clearMap() {
-        for (const arr of Object.values(layers)) {
-          arr.forEach((o) => map.removeLayer(o));
-          arr.length = 0;
+        if (routeLine) {
+          map.removeLayer(routeLine);
+          routeLine = null;
+        }
+        edgeLabels.forEach((l) => map.removeLayer(l));
+        edgeLabels = [];
+        stopMarkers.forEach((m) => map.removeLayer(m));
+        stopMarkers = [];
+      }
+
+      function fitToContent() {
+        const group = L.featureGroup([
+          ...(routeLine ? [routeLine] : []),
+          ...stopMarkers,
+        ]);
+        if (group.getLayers().length) {
+          map.fitBounds(group.getBounds(), { padding: [40, 40] });
         }
       }
 
-      function midpoint(a, b) {
-        return [(a.lat + b.lat) / 2, (a.lng + b.lng) / 2];
-      }
+      async function buildRoute() {
+        if (!data.stops || data.stops.length < 2) return;
+        // Координаты: OSRM ждёт lng,lat
+        const coords = data.stops.map((s) => `${s.lng},${s.lat}`).join(";");
+        const profile = document.getElementById("profile").value || "driving";
+        const url = `https://router.project-osrm.org/route/v1/${profile}/${coords}?overview=full&geometries=geojson&steps=false&annotations=false`;
+        // запрос
+        const res = await fetch(url);
+        if (!res.ok) {
+          console.error("OSRM error", res.status);
+          return;
+        }
+        const json = await res.json();
+        if (!json.routes || !json.routes[0]) {
+          console.warn("Маршрут не найден");
+          return;
+        }
+        const route = json.routes[0];
 
-      function render(data) {
-        clearMap();
-        // KPI
-        const total =
-          data.stops.reduce((acc, s) => acc + (Number(s.costRUB) || 0), 0) +
-          (data.flight?.costRUB || 0);
-        document.getElementById("kpiTotal").textContent = new Intl.NumberFormat(
-          "ru-RU"
-        ).format(Math.round(total));
-        document.getElementById("kpiStops").textContent = data.stops.length;
-        const tripDays = daysBetween(
-          data.stops[0].arrive,
-          data.flight?.date || data.stops.at(-1).depart
-        );
-        document.getElementById("kpiDays").textContent = tripDays;
-
-        // Маршрут
-        const byId = Object.fromEntries(data.stops.map((s) => [s.id, s]));
-        const coords = data.stops.map((s) => [s.lat, s.lng]);
-
-        // Линия маршрута
-        const poly = L.polyline(coords, {
+        // Полилиния
+        const latlngs = route.geometry.coordinates.map(([lng, lat]) => [
+          lat,
+          lng,
+        ]);
+        if (routeLine) map.removeLayer(routeLine);
+        routeLine = L.polyline(latlngs, {
           color: "#38bdf8",
           weight: 4,
           opacity: 0.9,
-          lineJoin: "round",
         }).addTo(map);
-        layers.lines.push(poly);
 
-        // Метки точек
-        data.stops.forEach((s, idx) => {
-          const participants = getParticipantsAtStop(s);
-          const costPerPerson = getCostPerPerson(s);
-          const html = `
-          <div class="pop">
-            <div><b>${idx + 1}. ${s.city}</b> · ${s.country}</div>
-            <div>Заезд: <b>${fmtDMY(fmtDate(s.arrive))}</b> (${fmtDay(
-            fmtDate(s.arrive)
-          )})</div>
-            <div>Выезд: <b>${fmtDMY(fmtDate(s.depart))}</b> (${fmtDay(
-            fmtDate(s.depart)
-          )})</div>
-            ${
-              participants.length > 0
-                ? `<div>Участники (${
-                    participants.length
-                  }): <b>${participants.join(", ")}</b></div>`
-                : ""
-            }
-            ${
-              s.costRUB
-                ? `<div>Проживание: <b>${fmtMoney(
-                    s.costRUB,
-                    data.currency
-                  )}</b></div>`
-                : ""
-            }
-            ${
-              costPerPerson > 0
-                ? `<div>На человека: <b>${fmtMoney(
-                    costPerPerson,
-                    data.currency
-                  )}</b></div>`
-                : ""
-            }
-            ${s.note ? `<div class="subtitle">${s.note}</div>` : ""}
-            ${
-              s.hotelUrl
-                ? `<div style="margin-top:6px;"><a href="${s.hotelUrl}" target="_blank" rel="noopener">Ссылка на отель</a></div>`
-                : ""
-            }
-          </div>`;
-          const m = L.marker([s.lat, s.lng], { title: s.city })
-            .addTo(map)
-            .bindPopup(html);
-          layers.markers.push(m);
-        });
+        // KPI
+        document.getElementById("kpiKm").textContent = fmtKm(route.distance);
+        document.getElementById("kpiDur").textContent = fmtDur(route.duration);
+        document.getElementById("kpiStops").textContent = data.stops.length;
 
-        // Подписи времени в пути
-        data.segments.forEach((seg) => {
-          const a = byId[seg.from],
-            b = byId[seg.to];
-          if (!a || !b) return;
-          const mp = midpoint(a, b);
-          const label = L.marker(mp, {
+        // Сегменты/подписи
+        edgeLabels.forEach((l) => map.removeLayer(l));
+        edgeLabels = [];
+        const legs = route.legs || [];
+        const legsCont = document.getElementById("legs");
+        legsCont.innerHTML = "";
+        for (let i = 0; i < legs.length; i++) {
+          const a = data.stops[i];
+          const b = data.stops[i + 1];
+          const dur = legs[i].duration; // сек
+          const dist = legs[i].distance; // м
+          const mid = [(a.lat + b.lat) / 2, (a.lng + b.lng) / 2];
+          const label = L.marker(mid, {
             icon: L.divIcon({
               className: "edge-label",
-              html: `${seg.travelHours.toFixed(1)} ч${
-                seg.note ? ` · ${seg.note}` : ""
-              }`,
+              html: `${fmtDur(dur)} · ${fmtKm(dist)} км`,
             }),
-          });
-          label.addTo(map);
-          layers.labels.push(label);
-        });
-
-        // Fit
-        document.getElementById("fitBtn").onclick = () =>
-          map.fitBounds(poly.getBounds(), { padding: [40, 40] });
-        map.fitBounds(poly.getBounds(), { padding: [60, 60] });
-
-        // Участники
-        if (data.people) {
-          const participantsCont = document.getElementById("participants");
-          participantsCont.innerHTML = "";
-          const personalCosts = calculatePersonalCosts(data);
-
-          data.people.forEach((person) => {
-            const totalCost = personalCosts[person.name] || 0;
-            const el = document.createElement("div");
-            el.className = "participant";
-            el.innerHTML = `
-              <div class="name">${person.name}</div>
-              <div class="joined mono">${fmtMoney(
-                totalCost,
-                data.currency
-              )}</div>
-            `;
-            participantsCont.appendChild(el);
-          });
-
-          document.getElementById("participantCount").textContent =
-            data.people.length;
+          }).addTo(map);
+          edgeLabels.push(label);
+          const row = document.createElement("div");
+          row.className = "line";
+          row.innerHTML = `<div>${i + 1}. <b>${
+            a.city || a.id || "A"
+          }</b> → <b>${
+            b.city || b.id || "B"
+          }</b></div><div class="mono">${fmtDur(dur)}, ${fmtKm(dist)} км</div>`;
+          legsCont.appendChild(row);
         }
 
-        // Календарь
-        const days = expandDays(data.stops);
-        const cont = document.getElementById("days");
-        cont.innerHTML = "";
-        days.forEach((d) => {
-          const el = document.createElement("div");
-          el.className = "day";
-          el.innerHTML = `
-          <div class="date mono">${fmtDMY(
-            d.date
-          )}<br><span class="subtitle">${fmtDay(d.date)}</span></div>
-          <div>
-            <div class="city">${d.city}</div>
-            <div class="subtitle">${d.country}</div>
-          </div>`;
-          cont.appendChild(el);
-        });
-
-        // Редактор JSON
-        const editor = document.getElementById("jsonEditor");
-        editor.value = JSON.stringify(data, null, 2);
+        fitToContent();
       }
 
-      // ======= Инициализация =======
-      (function init() {
-        map = L.map("map", { zoomControl: true, preferCanvas: true });
-        const tiles = L.tileLayer(
-          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          {
-            maxZoom: 19,
-            attribution: "&copy; OpenStreetMap",
+      const debouncedBuild = debounce(buildRoute, 900);
+
+      function render() {
+        clearMap();
+        // Маркеры
+        data.stops.forEach((s, idx) => {
+          const m = L.marker([s.lat, s.lng], {
+            draggable: true,
+            title: s.city || s.id || `Точка ${idx + 1}`,
+          }).addTo(map);
+          m.on("dragend", () => {
+            const p = m.getLatLng();
+            s.lat = p.lat;
+            s.lng = p.lng;
+            // обновляем JSON редактор
+            document.getElementById("jsonEditor").value = JSON.stringify(
+              data,
+              null,
+              2
+            );
+            debouncedBuild();
+          });
+          m.bindPopup(`<div><b>${idx + 1}. ${
+            s.city || s.id
+          }</b><div class="subtitle">${s.country || ""}</div>
+          ${s.arrive ? `<div>Заезд: <b>${s.arrive}</b></div>` : ""}
+          ${s.depart ? `<div>Выезд: <b>${s.depart}</b></div>` : ""}
+          ${
+            s.costRUB
+              ? `<div>Проживание: <b>${fmtMoney(s.costRUB)}</b></div>`
+              : ""
           }
+          ${
+            s.hotelUrl
+              ? `<div style='margin-top:6px'><a href='${s.hotelUrl}' target='_blank' rel='noopener'>Ссылка на отель</a></div>`
+              : ""
+          }
+        </div>`);
+          stopMarkers.push(m);
+        });
+
+        debouncedBuild();
+        // редактор JSON
+        document.getElementById("jsonEditor").value = JSON.stringify(
+          data,
+          null,
+          2
         );
-        tiles.addTo(map);
+      }
 
-        const raw = document.getElementById("trip-data").textContent.trim();
-        let data = JSON.parse(raw);
-        render(data);
+      (function init() {
+        map = L.map("map", { zoomControl: true, preferCanvas: true }).setView(
+          [44.5, 10.5],
+          6
+        );
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "&copy; OpenStreetMap",
+        }).addTo(map);
 
+        // UI
         document.getElementById("applyBtn").addEventListener("click", () => {
           try {
-            const parsed = JSON.parse(
-              document.getElementById("jsonEditor").value
-            );
-            data = parsed;
-            render(data);
+            data = JSON.parse(document.getElementById("jsonEditor").value);
+            render();
           } catch (e) {
-            alert("Ошибка парсинга JSON: " + e.message);
+            alert("Ошибка JSON: " + e.message);
           }
         });
-
-        // Google Maps API обработчики
-        const apiKeyInput = document.getElementById("googleApiKey");
-
-        // Загружаем сохраненный API ключ
-        const savedApiKey =
-          localStorage.getItem("googleMapsApiKey") ||
-          "AIzaSyD8bsARiVWBucg8DlyzfK-ngjzY1zNR394";
-        if (savedApiKey) {
-          apiKeyInput.value = savedApiKey;
-          document.getElementById("updateTimesBtn").disabled = false;
-        }
-
-        apiKeyInput.addEventListener("input", (e) => {
-          const key = e.target.value.trim();
-          const hasKey = key.length > 0;
-          document.getElementById("updateTimesBtn").disabled = !hasKey;
-
-          // Сохраняем API ключ
-          if (hasKey) {
-            localStorage.setItem("googleMapsApiKey", key);
-          } else {
-            localStorage.removeItem("googleMapsApiKey");
-          }
-        });
-
         document
-          .getElementById("updateTimesBtn")
-          .addEventListener("click", updateTravelTimes);
+          .getElementById("profile")
+          .addEventListener("change", debouncedBuild);
+        document
+          .getElementById("fitBtn")
+          .addEventListener("click", fitToContent);
+
+        render();
       })();
     </script>
   </body>
