@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Маршрут поездки: Италия → Швейцария • Февраль 2026</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <style>
+      :root {
+        --bg: #0f172a; /* slate-900 */
+        --panel: #111827; /* gray-900 */
+        --panel-2: #0b1220; /* near */
+        --text: #e5e7eb; /* gray-200 */
+        --muted: #9ca3af; /* gray-400 */
+        --accent: #38bdf8; /* sky-400 */
+        --accent-2: #f59e0b; /* amber-500 */
+        --ok: #22c55e; /* green-500 */
+        --warn: #f59e0b;
+        --danger: #ef4444;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          Ubuntu, Cantarell, "Noto Sans", "Helvetica Neue", Arial;
+      }
+      .app {
+        display: grid;
+        grid-template-columns: 420px 1fr;
+        gap: 8px;
+        height: 100%;
+      }
+      .sidebar {
+        background: linear-gradient(180deg, var(--panel), var(--panel-2));
+        padding: 14px;
+        overflow: auto;
+        border-right: 1px solid #1f2937;
+      }
+      .map {
+        height: 100%;
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+      .title {
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+      }
+      .subtitle {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .btn {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text);
+        padding: 8px 10px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      .btn:hover {
+        border-color: var(--accent);
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #001018;
+        border: none;
+      }
+      .list {
+        display: grid;
+        gap: 6px;
+      }
+      .day {
+        display: grid;
+        grid-template-columns: 86px 1fr;
+        gap: 10px;
+        align-items: start;
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px dashed rgba(255, 255, 255, 0.08);
+      }
+      .day .date {
+        font-weight: 700;
+        color: var(--accent);
+        font-variant-numeric: tabular-nums;
+      }
+      .day .city {
+        font-weight: 600;
+      }
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+      .pop {
+        font-size: 13px;
+        line-height: 1.2;
+      }
+      .edge-label {
+        background: rgba(17, 24, 39, 0.85);
+        color: #e5e7eb;
+        padding: 3px 6px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .editor {
+        margin-top: 8px;
+      }
+      .editor textarea {
+        width: 100%;
+        min-height: 180px;
+        resize: vertical;
+        background: #0a0f1a;
+        color: #d1d5db;
+        border: 1px solid #1f2937;
+        border-radius: 10px;
+        padding: 10px;
+      }
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      a {
+        color: #93c5fd;
+      }
+      .kpi {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 8px 0 10px;
+      }
+      .kpi .card {
+        text-align: center;
+      }
+      .kpi .num {
+        font-size: 18px;
+        font-weight: 800;
+      }
+      @media (max-width: 1000px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          height: 48vh;
+        }
+        .map {
+          height: 52vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="row" style="margin-bottom: 8px">
+          <div>
+            <div class="title">Италия → Швейцария • Февраль 2026</div>
+            <div class="subtitle">
+              Маршрут, даты, расходы. Всё редактируется через JSON ниже.
+            </div>
+          </div>
+          <button id="fitBtn" class="btn" title="Показать весь маршрут">
+            Fit
+          </button>
+        </div>
+
+        <div class="kpi">
+          <div class="card">
+            <div class="subtitle">Дней</div>
+            <div id="kpiDays" class="num">—</div>
+          </div>
+          <div class="card">
+            <div class="subtitle">Точек</div>
+            <div id="kpiStops" class="num">—</div>
+          </div>
+          <div class="card">
+            <div class="subtitle">Сумма, ₽</div>
+            <div id="kpiTotal" class="num mono">—</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="row" style="margin-bottom: 6px">
+            <div class="title" style="font-size: 16px">Календарь по дням</div>
+            <div class="badge">
+              <span>локаль</span><span class="mono">ru-RU</span>
+            </div>
+          </div>
+          <div id="days" class="list"></div>
+        </div>
+
+        <div class="card">
+          <div class="row" style="margin-bottom: 6px">
+            <div class="title" style="font-size: 16px">JSON конфиг</div>
+            <button id="applyBtn" class="btn-primary btn">Перестроить</button>
+          </div>
+          <div class="subtitle" style="margin-bottom: 6px">
+            Редактируйте и нажмите «Перестроить». Формат задуман для простых
+            правок дат/стоимостей/ссылок и добавления точек.
+          </div>
+          <div class="editor">
+            <textarea id="jsonEditor" spellcheck="false"></textarea>
+          </div>
+        </div>
+
+        <div class="subtitle">
+          Сделано как единый HTML. Библиотека карты: Leaflet. Метки сегментов
+          показывают время в пути.
+        </div>
+      </aside>
+
+      <main id="map" class="map"></main>
+    </div>
+
+    <!-- ====== Исходные данные (редактируйте) ====== -->
+    <script type="application/json" id="trip-data">
+      {
+        "currency": "RUB",
+        "segments": [
+          {
+            "from": "neapol",
+            "to": "rim",
+            "travelHours": 1.25,
+            "note": "Поезд/авто"
+          },
+          { "from": "rim", "to": "bolonya", "travelHours": 2.5 },
+          { "from": "bolonya", "to": "veneciya", "travelHours": 1.5 },
+          { "from": "veneciya", "to": "milan", "travelHours": 2.75 },
+          {
+            "from": "milan",
+            "to": "vaduc",
+            "travelHours": 5,
+            "note": "Указано в плане"
+          },
+          { "from": "vaduc", "to": "cyurix", "travelHours": 1.75 },
+          { "from": "cyurix", "to": "bern", "travelHours": 1.25 },
+          { "from": "bern", "to": "zermatt", "travelHours": 2.75 },
+          {
+            "from": "zermatt",
+            "to": "cyurix2",
+            "travelHours": 3.8,
+            "note": "10:15–14:03"
+          }
+        ],
+        "stops": [
+          {
+            "id": "neapol",
+            "city": "Неаполь",
+            "country": "Италия",
+            "lat": 40.8518,
+            "lng": 14.2681,
+            "arrive": "2026-02-09",
+            "depart": "2026-02-11",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=3079825&checkIn=2026-02-09&checkOut=2026-02-11",
+            "costRUB": 28238
+          },
+          {
+            "id": "rim",
+            "city": "Рим",
+            "country": "Италия",
+            "lat": 41.9028,
+            "lng": 12.4964,
+            "arrive": "2026-02-11",
+            "depart": "2026-02-14",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2945770&checkIn=2026-02-11&checkOut=2026-02-14",
+            "costRUB": 68729
+          },
+          {
+            "id": "bolonya",
+            "city": "Болонья",
+            "country": "Италия",
+            "lat": 44.4949,
+            "lng": 11.3426,
+            "arrive": "2026-02-14",
+            "depart": "2026-02-15",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2199691&checkIn=2026-02-14&checkOut=2026-02-15",
+            "costRUB": 22542
+          },
+          {
+            "id": "veneciya",
+            "city": "Венеция",
+            "country": "Италия",
+            "lat": 45.4408,
+            "lng": 12.3155,
+            "arrive": "2026-02-15",
+            "depart": "2026-02-16",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=13660415&checkIn=2026-02-15&checkOut=2026-02-16",
+            "costRUB": 16210.26
+          },
+          {
+            "id": "milan",
+            "city": "Милан",
+            "country": "Италия",
+            "lat": 45.4642,
+            "lng": 9.19,
+            "arrive": "2026-02-16",
+            "depart": "2026-02-18",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2196521&checkIn=2026-02-16&checkOut=2026-02-18",
+            "costRUB": 100000
+          },
+          {
+            "id": "vaduc",
+            "city": "Вадуц",
+            "country": "Лихтенштейн",
+            "lat": 47.141,
+            "lng": 9.5209,
+            "arrive": "2026-02-18",
+            "depart": "2026-02-19",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=104439383&checkIn=2026-02-18&checkOut=2026-02-19",
+            "costRUB": 42023,
+            "note": "5 часов из Милана"
+          },
+          {
+            "id": "cyurix",
+            "city": "Цюрих",
+            "country": "Швейцария",
+            "lat": 47.3769,
+            "lng": 8.5417,
+            "arrive": "2026-02-19",
+            "depart": "2026-02-20",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2198062&checkIn=2026-02-19&checkOut=2026-02-20",
+            "costRUB": 52453.28
+          },
+          {
+            "id": "bern",
+            "city": "Берн",
+            "country": "Швейцария",
+            "lat": 46.947,
+            "lng": 7.4474,
+            "arrive": "2026-02-20",
+            "depart": "2026-02-21",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=749230&checkIn=2026-02-20&checkOut=2026-02-21",
+            "costRUB": 52598.94
+          },
+          {
+            "id": "zermatt",
+            "city": "Церматт",
+            "country": "Швейцария",
+            "lat": 46.0207,
+            "lng": 7.7491,
+            "arrive": "2026-02-21",
+            "depart": "2026-02-27",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2151049&checkIn=2026-02-21&checkOut=2026-02-27",
+            "costRUB": 435119,
+            "note": "Номера 4н x 2ч"
+          },
+          {
+            "id": "cyurix2",
+            "city": "Цюрих",
+            "country": "Швейцария",
+            "lat": 47.3769,
+            "lng": 8.5417,
+            "arrive": "2026-02-27",
+            "depart": "2026-02-28",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2198062&checkIn=2026-02-27&checkOut=2026-02-28",
+            "costRUB": 42975.92,
+            "note": "Поезд 10:15–14:03"
+          }
+        ],
+        "flight": {
+          "date": "2026-02-28",
+          "from": "ZRH",
+          "time": "11:40",
+          "checkin": "10:55",
+          "costRUB": 137740
+        },
+        "totalsNote": "Оценка общей суммы из плана: 2 518 229,40 ₽ (можно поменять/удалить)"
+      }
+    </script>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script>
+      // ======= Утилиты =======
+      const fmtMoney = (n, currency = "RUB") =>
+        new Intl.NumberFormat("ru-RU", { style: "currency", currency }).format(
+          n
+        );
+      const fmtDate = (d) => new Date(d + "T12:00:00"); // фикс таймзоны
+      const fmtDay = (d) =>
+        new Intl.DateTimeFormat("ru-RU", { weekday: "long" }).format(d);
+      const fmtDMY = (d) =>
+        new Intl.DateTimeFormat("ru-RU", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }).format(d);
+
+      function daysBetween(a, b) {
+        const ms = fmtDate(b) - fmtDate(a);
+        return Math.round(ms / 86400000);
+      }
+
+      function expandDays(stops) {
+        const days = [];
+        for (const s of stops) {
+          const a = fmtDate(s.arrive),
+            d = fmtDate(s.depart);
+          for (let cur = new Date(a); cur < d; cur.setDate(cur.getDate() + 1)) {
+            days.push({
+              date: new Date(cur),
+              stopId: s.id,
+              city: s.city,
+              country: s.country,
+            });
+          }
+        }
+        return days;
+      }
+
+      // ======= Рендер карты/данных =======
+      let map,
+        layers = { markers: [], lines: [], labels: [] };
+
+      function clearMap() {
+        for (const arr of Object.values(layers)) {
+          arr.forEach((o) => map.removeLayer(o));
+          arr.length = 0;
+        }
+      }
+
+      function midpoint(a, b) {
+        return [(a.lat + b.lat) / 2, (a.lng + b.lng) / 2];
+      }
+
+      function render(data) {
+        clearMap();
+        // KPI
+        const total =
+          data.stops.reduce((acc, s) => acc + (Number(s.costRUB) || 0), 0) +
+          (data.flight?.costRUB || 0);
+        document.getElementById("kpiTotal").textContent = new Intl.NumberFormat(
+          "ru-RU"
+        ).format(Math.round(total));
+        document.getElementById("kpiStops").textContent = data.stops.length;
+        const tripDays = daysBetween(
+          data.stops[0].arrive,
+          data.flight?.date || data.stops.at(-1).depart
+        );
+        document.getElementById("kpiDays").textContent = tripDays;
+
+        // Маршрут
+        const byId = Object.fromEntries(data.stops.map((s) => [s.id, s]));
+        const coords = data.stops.map((s) => [s.lat, s.lng]);
+
+        // Линия маршрута
+        const poly = L.polyline(coords, {
+          color: "#38bdf8",
+          weight: 4,
+          opacity: 0.9,
+          lineJoin: "round",
+        }).addTo(map);
+        layers.lines.push(poly);
+
+        // Метки точек
+        data.stops.forEach((s, idx) => {
+          const html = `
+          <div class="pop">
+            <div><b>${idx + 1}. ${s.city}</b> · ${s.country}</div>
+            <div>Заезд: <b>${fmtDMY(fmtDate(s.arrive))}</b> (${fmtDay(
+            fmtDate(s.arrive)
+          )})</div>
+            <div>Выезд: <b>${fmtDMY(fmtDate(s.depart))}</b> (${fmtDay(
+            fmtDate(s.depart)
+          )})</div>
+            ${
+              s.costRUB
+                ? `<div>Проживание: <b>${fmtMoney(
+                    s.costRUB,
+                    data.currency
+                  )}</b></div>`
+                : ""
+            }
+            ${s.note ? `<div class="subtitle">${s.note}</div>` : ""}
+            ${
+              s.hotelUrl
+                ? `<div style="margin-top:6px;"><a href="${s.hotelUrl}" target="_blank" rel="noopener">Ссылка на отель</a></div>`
+                : ""
+            }
+          </div>`;
+          const m = L.marker([s.lat, s.lng], { title: s.city })
+            .addTo(map)
+            .bindPopup(html);
+          layers.markers.push(m);
+        });
+
+        // Подписи времени в пути
+        data.segments.forEach((seg) => {
+          const a = byId[seg.from],
+            b = byId[seg.to];
+          if (!a || !b) return;
+          const mp = midpoint(a, b);
+          const label = L.marker(mp, {
+            icon: L.divIcon({
+              className: "edge-label",
+              html: `${seg.travelHours.toFixed(1)} ч${
+                seg.note ? ` · ${seg.note}` : ""
+              }`,
+            }),
+          });
+          label.addTo(map);
+          layers.labels.push(label);
+        });
+
+        // Fit
+        document.getElementById("fitBtn").onclick = () =>
+          map.fitBounds(poly.getBounds(), { padding: [40, 40] });
+        map.fitBounds(poly.getBounds(), { padding: [60, 60] });
+
+        // Календарь
+        const days = expandDays(data.stops);
+        const cont = document.getElementById("days");
+        cont.innerHTML = "";
+        days.forEach((d) => {
+          const el = document.createElement("div");
+          el.className = "day";
+          el.innerHTML = `
+          <div class="date mono">${fmtDMY(
+            d.date
+          )}<br><span class="subtitle">${fmtDay(d.date)}</span></div>
+          <div>
+            <div class="city">${d.city}</div>
+            <div class="subtitle">${d.country}</div>
+          </div>`;
+          cont.appendChild(el);
+        });
+
+        // Редактор JSON
+        const editor = document.getElementById("jsonEditor");
+        editor.value = JSON.stringify(data, null, 2);
+      }
+
+      // ======= Инициализация =======
+      (function init() {
+        map = L.map("map", { zoomControl: true, preferCanvas: true });
+        const tiles = L.tileLayer(
+          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          {
+            maxZoom: 19,
+            attribution: "&copy; OpenStreetMap",
+          }
+        );
+        tiles.addTo(map);
+
+        const raw = document.getElementById("trip-data").textContent.trim();
+        let data = JSON.parse(raw);
+        render(data);
+
+        document.getElementById("applyBtn").addEventListener("click", () => {
+          try {
+            const parsed = JSON.parse(
+              document.getElementById("jsonEditor").value
+            );
+            data = parsed;
+            render(data);
+          } catch (e) {
+            alert("Ошибка парсинга JSON: " + e.message);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
