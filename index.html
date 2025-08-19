@@ -6,10 +6,33 @@
     <title>
       Маршрут поездки: Италия → Швейцария • Февраль 2026 (OSRM, без ключей)
     </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "custom-bg": "#0f172a",
+              "custom-panel": "#111827",
+              "custom-panel2": "#0b1220",
+              "custom-text": "#e5e7eb",
+              "custom-muted": "#9ca3af",
+              "custom-accent": "#38bdf8",
+              "custom-ok": "#22c55e",
+              "custom-warn": "#f59e0b",
+            },
+          },
+        },
+      };
+    </script>
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       crossorigin=""
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
     />
     <style>
       :root {
@@ -117,7 +140,8 @@
         border: 1px solid rgba(255, 255, 255, 0.12);
         font-size: 12px;
         white-space: nowrap;
-        width: 100px !important;
+        width: fit-content !important;
+        height: fit-content !important;
       }
       .editor textarea {
         width: 100%;
@@ -145,91 +169,149 @@
       }
     </style>
   </head>
-  <body>
-    <div class="app">
-      <aside class="sidebar">
-        <div class="row" style="margin-bottom: 8px">
-          <div>
-            <div class="title">Италия → Швейцария • Февраль 2026</div>
-            <div class="subtitle">
+  <body class="bg-custom-bg text-custom-text font-sans">
+    <div class="min-h-screen grid lg:grid-cols-[420px_1fr] gap-2">
+      <aside
+        class="bg-gradient-to-b from-custom-panel to-custom-panel2 p-4 overflow-auto border-r border-gray-700 lg:max-h-screen"
+      >
+        <div
+          class="flex items-center justify-between mb-4 p-4 bg-black/20 rounded-xl border border-white/10"
+        >
+          <div class="flex-1">
+            <div class="text-xl font-bold flex items-center gap-2">
+              <i class="fas fa-route text-custom-accent"></i>
+              Италия → Швейцария • Март 2026
+            </div>
+            <div class="text-sm text-custom-muted mt-1">
               Карта на Leaflet + маршрутизация через OSRM (без API-ключей).
               Маркеры перетаскиваются, маршрут перестраивается с debounce.
             </div>
           </div>
-          <button id="fitBtn" class="btn">Fit</button>
+          <button
+            id="fitBtn"
+            class="ml-4 px-4 py-2 bg-transparent border border-white/20 text-custom-text rounded-lg hover:border-custom-accent transition-colors"
+          >
+            <i class="fas fa-expand-arrows-alt mr-2"></i>Fit
+          </button>
         </div>
 
-        <div class="grid2">
-          <label class="card" style="display: block">
-            <div class="subtitle">Профиль маршрута</div>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+            <div class="text-sm text-custom-muted mb-2 flex items-center gap-2">
+              <i class="fas fa-cog"></i>
+              Профиль маршрута
+            </div>
             <select
               id="profile"
-              class="mono"
-              style="
-                width: 100%;
-                padding: 8px;
-                border-radius: 8px;
-                background: #0a0f1a;
-                color: #d1d5db;
-                border: 1px solid #1f2937;
-              "
+              class="w-full p-3 rounded-lg bg-black/40 text-custom-text border border-gray-600 focus:border-custom-accent focus:ring-1 focus:ring-custom-accent font-mono text-sm"
             >
-              <option value="driving" selected>driving (авто)</option>
-              <option value="walking">walking (пешком)</option>
-              <option value="cycling">cycling (велосипед)</option>
+              <option value="driving" selected>🚗 driving (авто)</option>
+              <option value="walking">🚶 walking (пешком)</option>
+              <option value="cycling">🚴 cycling (велосипед)</option>
             </select>
-          </label>
-          <div class="card">
-            <div class="subtitle">Опции</div>
-            <label style="display: flex; gap: 8px; align-items: center"
-              ><input id="snapToRoads" type="checkbox" checked />
-              <span class="subtitle">привязывать к дорогам</span></label
+          </div>
+          <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+            <div class="text-sm text-custom-muted mb-3 flex items-center gap-2">
+              <i class="fas fa-sliders-h"></i>
+              Опции
+            </div>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                id="snapToRoads"
+                type="checkbox"
+                checked
+                class="w-4 h-4 text-custom-accent bg-gray-700 border-gray-600 rounded focus:ring-custom-accent"
+              />
+              <span class="text-sm text-custom-muted"
+                >привязывать к дорогам</span
+              >
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 mb-4">
+          <div
+            class="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-xl p-4 text-center"
+          >
+            <div
+              class="text-xs text-blue-300 mb-1 flex items-center justify-center gap-1"
             >
+              <i class="fas fa-road"></i>
+              Всего, км
+            </div>
+            <div id="kpiKm" class="text-2xl font-bold text-white">—</div>
+          </div>
+          <div
+            class="bg-gradient-to-br from-green-500/10 to-green-600/5 border border-green-500/20 rounded-xl p-4 text-center"
+          >
+            <div
+              class="text-xs text-green-300 mb-1 flex items-center justify-center gap-1"
+            >
+              <i class="fas fa-clock"></i>
+              Время
+            </div>
+            <div id="kpiDur" class="text-2xl font-bold text-white">—</div>
+          </div>
+          <div
+            class="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-xl p-4 text-center"
+          >
+            <div
+              class="text-xs text-purple-300 mb-1 flex items-center justify-center gap-1"
+            >
+              <i class="fas fa-map-marker-alt"></i>
+              Точек
+            </div>
+            <div id="kpiStops" class="text-2xl font-bold text-white">—</div>
           </div>
         </div>
 
-        <div class="kpi">
-          <div class="card">
-            <div class="subtitle">Всего, км</div>
-            <div id="kpiKm" class="num">—</div>
+        <div class="bg-white/5 border border-white/10 rounded-xl p-4 mb-4">
+          <div class="flex items-center gap-2 mb-3">
+            <i class="fas fa-route text-custom-accent"></i>
+            <div class="text-lg font-semibold">Сегменты маршрута</div>
           </div>
-          <div class="card">
-            <div class="subtitle">Всего, время</div>
-            <div id="kpiDur" class="num">—</div>
-          </div>
-          <div class="card">
-            <div class="subtitle">Узлов</div>
-            <div id="kpiStops" class="num">—</div>
-          </div>
+          <div id="legs" class="space-y-2"></div>
         </div>
 
-        <div class="card">
-          <div class="row" style="margin-bottom: 6px">
-            <div class="title" style="font-size: 16px">Сегменты</div>
+        <div class="bg-white/5 border border-white/10 rounded-xl p-4 mb-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-code text-custom-accent"></i>
+              <div class="text-lg font-semibold">JSON конфигурация</div>
+            </div>
+            <button
+              id="applyBtn"
+              class="px-4 py-2 bg-custom-accent text-white rounded-lg hover:bg-custom-accent/80 transition-colors flex items-center gap-2"
+            >
+              <i class="fas fa-sync-alt"></i>
+              Перестроить
+            </button>
           </div>
-          <div id="legs" class="list"></div>
-        </div>
-
-        <div class="card">
-          <div class="row" style="margin-bottom: 6px">
-            <div class="title" style="font-size: 16px">JSON конфиг</div>
-            <button id="applyBtn" class="btn">Перестроить</button>
-          </div>
-          <div class="subtitle" style="margin-bottom: 6px">
+          <div class="text-sm text-custom-muted mb-3">
             Редактируйте точки/поля. Порядок точек определяет порядок маршрута.
           </div>
-          <div class="editor">
-            <textarea id="jsonEditor" spellcheck="false"></textarea>
+          <div class="relative">
+            <textarea
+              id="jsonEditor"
+              spellcheck="false"
+              class="w-full min-h-[200px] resize-y bg-black/40 text-gray-300 border border-gray-600 rounded-lg p-3 font-mono text-sm focus:border-custom-accent focus:ring-1 focus:ring-custom-accent"
+              placeholder="JSON конфигурация загружается..."
+            ></textarea>
           </div>
         </div>
 
-        <div class="subtitle">
-          Примечание: публичный OSRM сервер ограничен по запросам; для
-          продакшена — свой инстанс/альтернатива.
+        <div
+          class="text-xs text-custom-muted p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg flex items-start gap-2"
+        >
+          <i class="fas fa-info-circle text-yellow-400 mt-0.5"></i>
+          <div>
+            <strong>Примечание:</strong> публичный OSRM сервер ограничен по
+            запросам; для продакшена — свой инстанс/альтернатива.
+          </div>
         </div>
       </aside>
 
-      <main id="map" class="map"></main>
+      <main id="map" class="min-h-screen lg:min-h-0"></main>
     </div>
 
     <!-- ====== ДАННЫЕ ====== -->
@@ -244,9 +326,21 @@
             "lat": 40.8518,
             "lng": 14.2681,
             "arrive": "2026-02-09",
+            "depart": "2026-02-10",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=3079825&checkIn=2026-02-09&checkOut=2026-02-10",
+            "costRUB": 18825
+          },
+          {
+            "id": "pompei",
+            "city": "Помпеи",
+            "country": "Италия",
+            "lat": 40.7489,
+            "lng": 14.4989,
+            "arrive": "2026-02-10",
             "depart": "2026-02-11",
-            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=3079825&checkIn=2026-02-09&checkOut=2026-02-11",
-            "costRUB": 28238
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=5123456&checkIn=2026-02-10&checkOut=2026-02-11",
+            "costRUB": 15420,
+            "note": "Древний город-музей"
           },
           {
             "id": "rim",
@@ -255,9 +349,45 @@
             "lat": 41.9028,
             "lng": 12.4964,
             "arrive": "2026-02-11",
-            "depart": "2026-02-14",
-            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2945770&checkIn=2026-02-11&checkOut=2026-02-14",
-            "costRUB": 68729
+            "depart": "2026-02-13",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2945770&checkIn=2026-02-11&checkOut=2026-02-13",
+            "costRUB": 45820
+          },
+          {
+            "id": "florencia",
+            "city": "Флоренция",
+            "country": "Италия",
+            "lat": 43.7696,
+            "lng": 11.2558,
+            "arrive": "2026-02-13",
+            "depart": "2026-02-15",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2198765&checkIn=2026-02-13&checkOut=2026-02-15",
+            "costRUB": 38950,
+            "note": "Колыбель Возрождения"
+          },
+          {
+            "id": "piza",
+            "city": "Пиза",
+            "country": "Италия",
+            "lat": 43.7228,
+            "lng": 10.4017,
+            "arrive": "2026-02-15",
+            "depart": "2026-02-15",
+            "hotelUrl": "",
+            "costRUB": 0,
+            "note": "Однодневная поездка - Падающая башня"
+          },
+          {
+            "id": "cinque_terre",
+            "city": "Чинкве-Терре",
+            "country": "Италия",
+            "lat": 44.1278,
+            "lng": 9.7129,
+            "arrive": "2026-02-15",
+            "depart": "2026-02-16",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=3456789&checkIn=2026-02-15&checkOut=2026-02-16",
+            "costRUB": 32150,
+            "note": "Пять деревень на скалах"
           },
           {
             "id": "bolonya",
@@ -265,9 +395,9 @@
             "country": "Италия",
             "lat": 44.4949,
             "lng": 11.3426,
-            "arrive": "2026-02-14",
-            "depart": "2026-02-15",
-            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2199691&checkIn=2026-02-14&checkOut=2026-02-15",
+            "arrive": "2026-02-16",
+            "depart": "2026-02-17",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2199691&checkIn=2026-02-16&checkOut=2026-02-17",
             "costRUB": 22542
           },
           {
@@ -276,9 +406,9 @@
             "country": "Италия",
             "lat": 45.4408,
             "lng": 12.3155,
-            "arrive": "2026-02-15",
-            "depart": "2026-02-16",
-            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=13660415&checkIn=2026-02-15&checkOut=2026-02-16",
+            "arrive": "2026-02-17",
+            "depart": "2026-02-18",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=13660415&checkIn=2026-02-17&checkOut=2026-02-18",
             "costRUB": 16210.26
           },
           {
@@ -287,9 +417,9 @@
             "country": "Италия",
             "lat": 45.4642,
             "lng": 9.19,
-            "arrive": "2026-02-16",
-            "depart": "2026-02-18",
-            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2196521&checkIn=2026-02-16&checkOut=2026-02-18",
+            "arrive": "2026-02-18",
+            "depart": "2026-02-20",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2196521&checkIn=2026-02-18&checkOut=2026-02-20",
             "costRUB": 100000
           },
           {
@@ -298,9 +428,9 @@
             "country": "Лихтенштейн",
             "lat": 47.141,
             "lng": 9.5209,
-            "arrive": "2026-02-18",
-            "depart": "2026-02-19",
-            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=104439383&checkIn=2026-02-18&checkOut=2026-02-19",
+            "arrive": "2026-02-20",
+            "depart": "2026-02-21",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=104439383&checkIn=2026-02-20&checkOut=2026-02-21",
             "costRUB": 42023,
             "note": "5 часов из Милана"
           },
@@ -310,9 +440,9 @@
             "country": "Швейцария",
             "lat": 47.3769,
             "lng": 8.5417,
-            "arrive": "2026-02-19",
-            "depart": "2026-02-20",
-            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2198062&checkIn=2026-02-19&checkOut=2026-02-20",
+            "arrive": "2026-02-21",
+            "depart": "2026-02-22",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2198062&checkIn=2026-02-21&checkOut=2026-02-22",
             "costRUB": 52453.28
           },
           {
@@ -321,9 +451,9 @@
             "country": "Швейцария",
             "lat": 46.947,
             "lng": 7.4474,
-            "arrive": "2026-02-20",
-            "depart": "2026-02-21",
-            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=749230&checkIn=2026-02-20&checkOut=2026-02-21",
+            "arrive": "2026-02-22",
+            "depart": "2026-02-23",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=749230&checkIn=2026-02-22&checkOut=2026-02-23",
             "costRUB": 52598.94
           },
           {
@@ -332,11 +462,11 @@
             "country": "Швейцария",
             "lat": 46.0207,
             "lng": 7.7491,
-            "arrive": "2026-02-21",
-            "depart": "2026-02-27",
-            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2151049&checkIn=2026-02-21&checkOut=2026-02-27",
+            "arrive": "2026-02-23",
+            "depart": "2026-03-01",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2151049&checkIn=2026-02-23&checkOut=2026-03-01",
             "costRUB": 435119,
-            "note": "Номера 4н x 2ч"
+            "note": "Номера 6н x 2ч - горнолыжный курорт"
           },
           {
             "id": "cyurix2",
@@ -344,9 +474,9 @@
             "country": "Швейцария",
             "lat": 47.3769,
             "lng": 8.5417,
-            "arrive": "2026-02-27",
-            "depart": "2026-02-28",
-            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2198062&checkIn=2026-02-27&CheckOut=2026-02-28",
+            "arrive": "2026-03-01",
+            "depart": "2026-03-02",
+            "hotelUrl": "https://ru.trip.com/hotels/detail/?hotelId=2198062&checkIn=2026-03-01&CheckOut=2026-03-02",
             "costRUB": 42975.92,
             "note": "Поезд 10:15–14:03"
           }
@@ -415,70 +545,143 @@
 
       async function buildRoute() {
         if (!data.stops || data.stops.length < 2) return;
-        // Координаты: OSRM ждёт lng,lat
-        const coords = data.stops.map((s) => `${s.lng},${s.lat}`).join(";");
-        const profile = document.getElementById("profile").value || "driving";
-        const url = `https://router.project-osrm.org/route/v1/${profile}/${coords}?overview=full&geometries=geojson&steps=false&annotations=false`;
-        // запрос
-        const res = await fetch(url);
-        if (!res.ok) {
-          console.error("OSRM error", res.status);
-          return;
-        }
-        const json = await res.json();
-        if (!json.routes || !json.routes[0]) {
-          console.warn("Маршрут не найден");
-          return;
-        }
-        const route = json.routes[0];
 
-        // Полилиния
-        const latlngs = route.geometry.coordinates.map(([lng, lat]) => [
-          lat,
-          lng,
-        ]);
-        if (routeLine) map.removeLayer(routeLine);
-        routeLine = L.polyline(latlngs, {
-          color: "#38bdf8",
-          weight: 4,
-          opacity: 0.9,
-        }).addTo(map);
+        // Показываем индикатор загрузки
+        const kpiElements = ["kpiKm", "kpiDur", "kpiStops"];
+        kpiElements.forEach((id) => {
+          document.getElementById(id).innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i>';
+        });
 
-        // KPI
-        document.getElementById("kpiKm").textContent = fmtKm(route.distance);
-        document.getElementById("kpiDur").textContent = fmtDur(route.duration);
-        document.getElementById("kpiStops").textContent = data.stops.length;
+        try {
+          // Координаты: OSRM ждёт lng,lat
+          const coords = data.stops.map((s) => `${s.lng},${s.lat}`).join(";");
+          const profile = document.getElementById("profile").value || "driving";
+          const url = `https://router.project-osrm.org/route/v1/${profile}/${coords}?overview=full&geometries=geojson&steps=false&annotations=false`;
 
-        // Сегменты/подписи
-        edgeLabels.forEach((l) => map.removeLayer(l));
-        edgeLabels = [];
-        const legs = route.legs || [];
-        const legsCont = document.getElementById("legs");
-        legsCont.innerHTML = "";
-        for (let i = 0; i < legs.length; i++) {
-          const a = data.stops[i];
-          const b = data.stops[i + 1];
-          const dur = legs[i].duration; // сек
-          const dist = legs[i].distance; // м
-          const mid = [(a.lat + b.lat) / 2, (a.lng + b.lng) / 2];
-          const label = L.marker(mid, {
-            icon: L.divIcon({
-              className: "edge-label",
-              html: `${fmtDur(dur)} · ${fmtKm(dist)} км`,
-            }),
+          // запрос
+          const res = await fetch(url);
+          if (!res.ok) {
+            console.error("OSRM error", res.status);
+            showNotification("Ошибка построения маршрута", "error");
+            return;
+          }
+          const json = await res.json();
+          if (!json.routes || !json.routes[0]) {
+            console.warn("Маршрут не найден");
+            showNotification("Маршрут не найден", "warning");
+            return;
+          }
+          const route = json.routes[0];
+
+          // Полилиния
+          const latlngs = route.geometry.coordinates.map(([lng, lat]) => [
+            lat,
+            lng,
+          ]);
+          if (routeLine) map.removeLayer(routeLine);
+          routeLine = L.polyline(latlngs, {
+            color: "#38bdf8",
+            weight: 4,
+            opacity: 0.9,
           }).addTo(map);
-          edgeLabels.push(label);
-          const row = document.createElement("div");
-          row.className = "line";
-          row.innerHTML = `<div>${i + 1}. <b>${
-            a.city || a.id || "A"
-          }</b> → <b>${
-            b.city || b.id || "B"
-          }</b></div><div class="mono">${fmtDur(dur)}, ${fmtKm(dist)} км</div>`;
-          legsCont.appendChild(row);
-        }
 
-        fitToContent();
+          // KPI
+          document.getElementById("kpiKm").textContent = fmtKm(route.distance);
+          document.getElementById("kpiDur").textContent = fmtDur(
+            route.duration
+          );
+          document.getElementById("kpiStops").textContent = data.stops.length;
+
+          // Сегменты/подписи
+          edgeLabels.forEach((l) => map.removeLayer(l));
+          edgeLabels = [];
+          const legs = route.legs || [];
+          const legsCont = document.getElementById("legs");
+          legsCont.innerHTML = "";
+          for (let i = 0; i < legs.length; i++) {
+            const a = data.stops[i];
+            const b = data.stops[i + 1];
+            const dur = legs[i].duration; // сек
+            const dist = legs[i].distance; // м
+            const mid = [(a.lat + b.lat) / 2, (a.lng + b.lng) / 2];
+            const label = L.marker(mid, {
+              icon: L.divIcon({
+                className: "edge-label",
+                html: `${fmtDur(dur)} · ${fmtKm(dist)} км`,
+              }),
+            }).addTo(map);
+            edgeLabels.push(label);
+            const row = document.createElement("div");
+            row.className =
+              "flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors";
+            row.innerHTML = `
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-custom-accent/20 text-custom-accent rounded-full flex items-center justify-center text-sm font-bold">
+                  ${i + 1}
+                </div>
+                <div>
+                  <div class="font-medium">
+                    <span class="text-custom-text">${
+                      a.city || a.id || "A"
+                    }</span>
+                    <i class="fas fa-arrow-right mx-2 text-custom-muted"></i>
+                    <span class="text-custom-text">${
+                      b.city || b.id || "B"
+                    }</span>
+                  </div>
+                  <div class="text-sm text-custom-muted font-mono">${fmtDur(
+                    dur
+                  )} • ${fmtKm(dist)} км</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <i class="fas fa-route text-custom-accent"></i>
+              </div>
+            `;
+            legsCont.appendChild(row);
+          }
+
+          fitToContent();
+          showNotification("Маршрут успешно построен", "success");
+        } catch (error) {
+          console.error("Route building error:", error);
+          showNotification("Ошибка при построении маршрута", "error");
+          return;
+        }
+      }
+
+      // Функция показа уведомлений
+      function showNotification(message, type = "info") {
+        const notification = document.createElement("div");
+        const colors = {
+          success: "bg-green-500/90 border-green-400",
+          error: "bg-red-500/90 border-red-400",
+          warning: "bg-yellow-500/90 border-yellow-400",
+          info: "bg-blue-500/90 border-blue-400",
+        };
+        const icons = {
+          success: "fas fa-check-circle",
+          error: "fas fa-exclamation-circle",
+          warning: "fas fa-exclamation-triangle",
+          info: "fas fa-info-circle",
+        };
+
+        notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-4 py-3 rounded-lg border shadow-lg z-50 flex items-center gap-2 transform translate-x-full transition-transform`;
+        notification.innerHTML = `<i class="${icons[type]}"></i>${message}`;
+
+        document.body.appendChild(notification);
+
+        // Анимация появления
+        setTimeout(() => {
+          notification.classList.remove("translate-x-full");
+        }, 100);
+
+        // Автоскрытие через 3 секунды
+        setTimeout(() => {
+          notification.classList.add("translate-x-full");
+          setTimeout(() => notification.remove(), 300);
+        }, 3000);
       }
 
       const debouncedBuild = debounce(buildRoute, 900);
@@ -503,22 +706,48 @@
             );
             debouncedBuild();
           });
-          m.bindPopup(`<div><b>${idx + 1}. ${
-            s.city || s.id
-          }</b><div class="subtitle">${s.country || ""}</div>
-          ${s.arrive ? `<div>Заезд: <b>${s.arrive}</b></div>` : ""}
-          ${s.depart ? `<div>Выезд: <b>${s.depart}</b></div>` : ""}
-          ${
-            s.costRUB
-              ? `<div>Проживание: <b>${fmtMoney(s.costRUB)}</b></div>`
-              : ""
-          }
-          ${
-            s.hotelUrl
-              ? `<div style='margin-top:6px'><a href='${s.hotelUrl}' target='_blank' rel='noopener'>Ссылка на отель</a></div>`
-              : ""
-          }
-        </div>`);
+          m.bindPopup(`
+            <div class="p-2 min-w-[250px]">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  ${idx + 1}
+                </div>
+                <div>
+                  <div class="font-bold text-lg">${s.city || s.id}</div>
+                  <div class="text-sm text-gray-600">${s.country || ""}</div>
+                </div>
+              </div>
+              ${
+                s.note
+                  ? `<div class="mb-2 p-2 bg-blue-50 rounded text-sm text-blue-800"><i class="fas fa-info-circle mr-1"></i>${s.note}</div>`
+                  : ""
+              }
+              <div class="space-y-2">
+                ${
+                  s.arrive
+                    ? `<div class="flex items-center gap-2"><i class="fas fa-calendar-check text-green-600"></i><span>Заезд: <strong>${s.arrive}</strong></span></div>`
+                    : ""
+                }
+                ${
+                  s.depart
+                    ? `<div class="flex items-center gap-2"><i class="fas fa-calendar-times text-red-600"></i><span>Выезд: <strong>${s.depart}</strong></span></div>`
+                    : ""
+                }
+                ${
+                  s.costRUB
+                    ? `<div class="flex items-center gap-2"><i class="fas fa-ruble-sign text-yellow-600"></i><span>Проживание: <strong>${fmtMoney(
+                        s.costRUB
+                      )}</strong></span></div>`
+                    : ""
+                }
+              </div>
+              ${
+                s.hotelUrl
+                  ? `<div class="mt-3"><a href='${s.hotelUrl}' target='_blank' rel='noopener' class="inline-flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"><i class="fas fa-external-link-alt"></i>Ссылка на отель</a></div>`
+                  : ""
+              }
+            </div>
+          `);
           stopMarkers.push(m);
         });
 
