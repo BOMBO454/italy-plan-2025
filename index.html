@@ -271,6 +271,50 @@
       .floating-controls .btn i {
         margin-right: 4px;
       }
+
+      /* Контекстное меню */
+      .context-menu {
+        position: absolute;
+        background: rgba(17, 24, 39, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        min-width: 200px;
+        padding: 8px 0;
+        display: none;
+      }
+
+      .context-menu-item {
+        padding: 8px 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: var(--text);
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+      }
+
+      .context-menu-item:hover {
+        background: rgba(56, 189, 248, 0.1);
+        color: var(--accent);
+      }
+
+      .context-menu-item i {
+        width: 16px;
+        text-align: center;
+      }
+
+      .context-menu-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 4px 0;
+      }
       .btn-danger:hover {
         background: rgba(220, 38, 38, 0.8);
       }
@@ -453,6 +497,31 @@
       </div>
     </div>
 
+    <!-- Контекстное меню -->
+    <div id="contextMenu" class="context-menu">
+      <button class="context-menu-item" id="addHotelItem">
+        <i class="fas fa-bed"></i>
+        <span>Добавить отель</span>
+      </button>
+      <button class="context-menu-item" id="addTransportItem">
+        <i class="fas fa-route"></i>
+        <span>Добавить дорогу</span>
+      </button>
+      <button class="context-menu-item" id="addSightseeingItem">
+        <i class="fas fa-camera"></i>
+        <span>Добавить достопримечательность</span>
+      </button>
+      <button class="context-menu-item" id="addOtherItem">
+        <i class="fas fa-star"></i>
+        <span>Добавить другое</span>
+      </button>
+      <div class="context-menu-divider"></div>
+      <button class="context-menu-item" id="cancelContextMenu">
+        <i class="fas fa-times"></i>
+        <span>Отмена</span>
+      </button>
+    </div>
+
     <!-- ====== ДАННЫЕ ====== -->
     <script type="application/json" id="activities-data">
       {
@@ -571,6 +640,10 @@
       let isSelectingCoordinates = false;
       let coordinateSelectionMode = null; // 'main', 'start', 'end'
       let temporaryMarker = null;
+
+      // Переменные для контекстного меню
+      let contextMenuVisible = false;
+      let contextMenuData = { date: null, time: null };
 
       // Функция для определения даты первого события
       function getEarliestEventDate(activities = null) {
@@ -1231,6 +1304,39 @@
               createNewActivity(dateStr, time);
             });
 
+            // Добавить обработчик клика для контекстного меню
+            daySlot.addEventListener("click", (e) => {
+              // Предотвратить всплытие события
+              e.stopPropagation();
+
+              // Если уже выбираем координаты или редактируем, не показывать меню
+              if (isSelectingCoordinates || isEditingActivity) return;
+
+              // Скрыть меню если уже открыто
+              if (contextMenuVisible) {
+                hideContextMenu();
+                return;
+              }
+
+              const dateStr = currentDay.toISOString().split("T")[0];
+
+              // Рассчитать время на основе позиции клика в ячейке
+              const rect = daySlot.getBoundingClientRect();
+              const relativeY = e.clientY - rect.top;
+              const slotHeight = rect.height;
+              const hourProgress = relativeY / slotHeight;
+
+              // Получить час из времени слота и добавить прогресс
+              const [slotHour] = time.split(":").map(Number);
+              const minutes = Math.round(hourProgress * 60);
+              const clickTime =
+                String(slotHour).padStart(2, "0") +
+                ":" +
+                String(minutes).padStart(2, "0");
+
+              showContextMenu(e.clientX, e.clientY, dateStr, clickTime);
+            });
+
             dayColumn.appendChild(daySlot);
           });
 
@@ -1618,6 +1724,104 @@
         showNotification("Новая активность создана", "success");
       }
 
+      // ===== Функции управления контекстным меню =====
+      function showContextMenu(x, y, date, time) {
+        const contextMenu = $("#contextMenu");
+        contextMenuData = { date, time };
+
+        // Позиционировать меню
+        contextMenu.style.left = x + "px";
+        contextMenu.style.top = y + "px";
+        contextMenu.style.display = "block";
+        contextMenuVisible = true;
+
+        // Убедиться что меню не выходит за границы экрана
+        setTimeout(() => {
+          const rect = contextMenu.getBoundingClientRect();
+          const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
+
+          if (rect.right > viewportWidth) {
+            contextMenu.style.left = x - rect.width + "px";
+          }
+          if (rect.bottom > viewportHeight) {
+            contextMenu.style.top = y - rect.height + "px";
+          }
+        }, 10);
+      }
+
+      function hideContextMenu() {
+        const contextMenu = $("#contextMenu");
+        contextMenu.style.display = "none";
+        contextMenuVisible = false;
+        contextMenuData = { date: null, time: null };
+      }
+
+      function createActivityWithTypeAndTime(type) {
+        if (!contextMenuData.date || !contextMenuData.time) return;
+
+        const typeNames = {
+          hotel: "Новый отель",
+          transport: "Новая дорога",
+          sightseeing: "Новая достопримечательность",
+          other: "Новая активность",
+        };
+
+        const newActivity = {
+          id: "activity_" + Date.now(),
+          title: typeNames[type] || "Новая активность",
+          type: type,
+          startDate: contextMenuData.date,
+          startTime: contextMenuData.time,
+          endDate: contextMenuData.date,
+          endTime: getEndTime(contextMenuData.time),
+          location: {
+            name: "Новое место",
+            address: "",
+            lat: null,
+            lng: null,
+          },
+          url: "",
+          cost: 0,
+          note: "",
+        };
+
+        // Добавить поля для транспорта
+        if (type === "transport") {
+          newActivity.location.startLat = null;
+          newActivity.location.startLng = null;
+          newActivity.location.endLat = null;
+          newActivity.location.endLng = null;
+        }
+
+        data.activities.push(newActivity);
+        saveToStorage(data);
+        renderCalendar();
+        renderActivitiesOnCalendar();
+        renderMap();
+
+        // Выбрать и начать редактирование новой активности
+        selectedActivity = newActivity;
+        showActivityDetails(newActivity);
+        startEditingActivity();
+
+        hideContextMenu();
+        showNotification(
+          `${typeNames[type]} создан${type === "transport" ? "а" : ""}`,
+          "success"
+        );
+      }
+
+      function getEndTime(startTime) {
+        const [hours, minutes] = startTime.split(":").map(Number);
+        const endHours = hours + 1; // По умолчанию событие длится час
+        return (
+          String(endHours).padStart(2, "0") +
+          ":" +
+          String(minutes).padStart(2, "0")
+        );
+      }
+
       // ===== Функции выбора координат на карте =====
       function startCoordinateSelection(mode = "main") {
         isSelectingCoordinates = true;
@@ -1922,6 +2126,28 @@
           "click",
           deleteCurrentActivity
         );
+
+        // Обработчики контекстного меню
+        $("#addHotelItem").addEventListener("click", () =>
+          createActivityWithTypeAndTime("hotel")
+        );
+        $("#addTransportItem").addEventListener("click", () =>
+          createActivityWithTypeAndTime("transport")
+        );
+        $("#addSightseeingItem").addEventListener("click", () =>
+          createActivityWithTypeAndTime("sightseeing")
+        );
+        $("#addOtherItem").addEventListener("click", () =>
+          createActivityWithTypeAndTime("other")
+        );
+        $("#cancelContextMenu").addEventListener("click", hideContextMenu);
+
+        // Закрыть контекстное меню при клике вне его
+        document.addEventListener("click", (e) => {
+          if (contextMenuVisible && !$("#contextMenu").contains(e.target)) {
+            hideContextMenu();
+          }
+        });
 
         $("#exportBtn").addEventListener("click", () => {
           const dataStr = JSON.stringify(data, null, 2);
