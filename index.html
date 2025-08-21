@@ -435,6 +435,9 @@
               <span id="detailsTitle">Детали активности</span>
             </div>
             <div class="flex gap-2">
+              <button id="closeDetailsBtn" class="btn" title="Закрыть (ESC)">
+                <i class="fas fa-times"></i>
+              </button>
               <button
                 id="editActivityBtn"
                 class="btn btn-primary"
@@ -1670,6 +1673,23 @@
         showNotification("Активность обновлена", "success");
       }
 
+      function closeActivityDetails() {
+        const detailsEl = $("#activityDetails");
+        detailsEl.style.display = "none";
+
+        // Сбросить состояние редактирования
+        if (isEditingActivity) {
+          isEditingActivity = false;
+          originalActivityData = null;
+        }
+
+        // Сбросить выбранную активность
+        selectedActivity = null;
+
+        // Остановить выбор координат если активен
+        stopCoordinateSelection();
+      }
+
       function deleteCurrentActivity() {
         if (!selectedActivity) return;
 
@@ -1681,10 +1701,7 @@
           renderCalendar();
           renderMap();
 
-          $("#activityDetails").style.display = "none";
-          selectedActivity = null;
-          isEditingActivity = false;
-          originalActivityData = null;
+          closeActivityDetails();
 
           showNotification("Активность удалена", "success");
         }
@@ -2126,6 +2143,7 @@
           "click",
           deleteCurrentActivity
         );
+        $("#closeDetailsBtn").addEventListener("click", closeActivityDetails);
 
         // Обработчики контекстного меню
         $("#addHotelItem").addEventListener("click", () =>
@@ -2146,6 +2164,22 @@
         document.addEventListener("click", (e) => {
           if (contextMenuVisible && !$("#contextMenu").contains(e.target)) {
             hideContextMenu();
+          }
+        });
+
+        // Обработчик клавиши ESC для закрытия панелей
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            if (contextMenuVisible) {
+              hideContextMenu();
+            } else if (selectedActivity) {
+              // Если редактируем, отменить редактирование, иначе закрыть панель
+              if (isEditingActivity) {
+                cancelEditingActivity();
+              } else {
+                closeActivityDetails();
+              }
+            }
           }
         });
 
